@@ -12,6 +12,14 @@ const GameController = (function(){
         gameBoard[x][y]=value;
     }
 
+    function resetGameBoard(){
+        for(let i=0; i<3; i++){
+            for(let j=0; j<3; j++){
+                gameBoard[i][j]="";
+            }
+        }
+    }
+
     function getGameBoard(){
         return gameBoard.slice();
     }
@@ -91,7 +99,24 @@ const GameController = (function(){
         return 0;
     } 
 
-    return {updateGameBoard, getGameBoard, checkWinCondition};
+    function checkDrawCondition(){
+        console.log("Came");
+        let drawCounter=0;
+        for(row of gameBoard){
+            for(column of row){
+                if(column ==="X" || column==="O"){
+                    console.log(column);
+                    drawCounter++;
+                }
+            }
+        }
+        if(drawCounter==9){
+            return 1;
+        }
+        return 0;
+    }
+
+    return {updateGameBoard, resetGameBoard, getGameBoard, checkWinCondition, checkDrawCondition};
 })();
 
 const PlayerController = (function(){
@@ -112,39 +137,90 @@ const PlayerController = (function(){
     return {updatePlayer, getCurrentPlayer};
 })();
 
-function MainController(){
-    // Player scores will be implemented later
-    let playerOneScore = 0;
-    let playerTwoScore = 0;
 
-    while(true){
-        let tictactoeBoard = GameController.getGameBoard();
-        for(let row of tictactoeBoard){
-            console.log(row);
-        }
-        let player = PlayerController.getCurrentPlayer();
-        let cellRow = Number(prompt("Input row: "))-1;
-        let cellColumn = Number(prompt("Input column: "))-1;
-        GameController.updateGameBoard(cellRow, cellColumn, player);
-        let winner = GameController.checkWinCondition();
-        if(winner){
-            if(winner === "X"){
-                console.log("Player one won");
-            }   
-            else if(winner === "O"){
-                console.log("Player two won");
+const ScreenController = (function(doc){
+    const row1 = doc.querySelector(".row-1");
+    const row2 = doc.querySelector(".row-2");
+    const row3 = doc.querySelector(".row-3");
+    const rows = [row1, row2, row3];
+    const currentPlayer = doc.querySelector(".current-player");
+    const dialog = document.querySelector("dialog");
+
+    dialog.addEventListener("click", restart);
+    rows.forEach((row)=>row.addEventListener("click", cellClick));
+
+    function cellClick(event){
+        const rowValue = Number(event.currentTarget.getAttribute("class").replace("row-", ""))-1;
+        const columnValue = Number(event.target.getAttribute("class").replace("col-", ""))-1;
+        MainController.newMovePlayed(rowValue, columnValue);
+    }
+
+    function restart(){
+        MainController.restart();
+        dialog.close();
+    }
+
+    function updateCell(gameBoard){
+        for(let row=0; row<3; row++){
+            let columns = rows[row].querySelectorAll("[class^='col-']");
+            for(let column=0; column<3; column++){
+                columns[column].textContent = gameBoard[row][column];
             }
-            break;
+        }
+    }
+
+
+    function updateCurrentPlayer(newPlayer){
+        currentPlayer.textContent =   `Turn: ${newPlayer}`;
+    }
+
+    function winner(player){
+        const congratualations = `${player} wins`;
+        dialog.querySelector("#congratulate").textContent = congratualations;
+        dialog.showModal();
+    }
+
+    function draw(){
+        dialog.querySelector("#congratulate").textContent = "It's a draw";
+        dialog.showModal();
+    }
+
+
+    return {updateCurrentPlayer, updateCell, winner, draw};
+
+})(document);
+
+
+const MainController = (function(){
+
+    function newMovePlayed(rowValue, columnValue){
+        const currentPlayer = PlayerController.getCurrentPlayer();
+        try{
+            GameController.updateGameBoard(rowValue, columnValue, currentPlayer);
+        }
+        catch{
+            return;
         }
         PlayerController.updatePlayer();
+        ScreenController.updateCurrentPlayer(PlayerController.getCurrentPlayer());
+        const updatedGameBoard = GameController.getGameBoard();
+        ScreenController.updateCell(updatedGameBoard);
+        const winnerCheck = GameController.checkWinCondition();
+        if(winnerCheck){
+            ScreenController.winner(winnerCheck);
+            return;
+        }
+        const drawCheck = GameController.checkDrawCondition();
+        if(drawCheck){
+            ScreenController.draw();
+        }
     }
 
-    let finalBoard = GameController.getGameBoard();
-    for(let row of finalBoard){
-        console.log(row);
+    function restart(){
+        GameController.resetGameBoard();
+        ScreenController.updateCell(GameController.getGameBoard());
     }
+    
+    return {newMovePlayed, restart};
+}());
 
-
-}
-
-MainController();
