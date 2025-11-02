@@ -5,6 +5,26 @@ const GameController = (function(){
         ["", "", ""],
     ];
 
+    let playerOneScore = 0;
+    let playerTwoScore = 0;
+    
+    function updatePlayerOneScore(){
+        playerOneScore++;
+    }
+
+    function updatePlayerTwoScore(){
+        playerTwoScore++;
+    }
+
+    function getPlayerOneScore(){
+        return playerOneScore;
+    }
+
+    function getPlayerTwoScore(){
+        return playerTwoScore;
+    }
+
+
     function updateGameBoard(x, y, value){
         if(gameBoard[x][y]){
             throw Error("Cell is filled");
@@ -116,7 +136,7 @@ const GameController = (function(){
         return 0;
     }
 
-    return {updateGameBoard, resetGameBoard, getGameBoard, checkWinCondition, checkDrawCondition};
+    return {updatePlayerOneScore, updatePlayerTwoScore, getPlayerOneScore, getPlayerTwoScore, updateGameBoard, resetGameBoard, getGameBoard, checkWinCondition, checkDrawCondition};
 })();
 
 const PlayerController = (function(){
@@ -134,6 +154,8 @@ const PlayerController = (function(){
         return players[currentPlayer];
     }
 
+    
+
     return {updatePlayer, getCurrentPlayer};
 })();
 
@@ -144,6 +166,12 @@ const ScreenController = (function(doc){
     const row3 = doc.querySelector(".row-3");
     const rows = [row1, row2, row3];
     const currentPlayer = doc.querySelector(".current-player");
+    const playerOne = doc.querySelector(".player-one");
+    const playerTwo = doc.querySelector(".player-two");
+    const playerOneName = doc.querySelector(".player-one-name");
+    const playerTwoName = doc.querySelector(".player-two-name");
+    playerOneName.addEventListener("click", changePlayerOneName);
+    playerTwoName.addEventListener("click", changePlayerTwoName);
     const dialog = document.querySelector("dialog");
 
     dialog.addEventListener("click", restart);
@@ -159,6 +187,22 @@ const ScreenController = (function(doc){
         MainController.restart();
         dialog.close();
     }
+
+    function changePlayerOneName(event){
+        const newName = prompt("Enter new name", "Adam");
+        event.target.textContent = newName;
+    }
+
+    function changePlayerTwoName(event){
+        const newName = prompt("Enter new name", "Eve");
+        event.target.textContent = newName;
+    }
+
+    function updateScore(playerOneScore, playerTwoScore){
+        playerOne.textContent = playerOneScore;
+        playerTwo.textContent = playerTwoScore;
+    }
+
 
     function updateCell(gameBoard){
         for(let row=0; row<3; row++){
@@ -186,7 +230,7 @@ const ScreenController = (function(doc){
     }
 
 
-    return {updateCurrentPlayer, updateCell, winner, draw};
+    return {updateScore, updateScore, updateCurrentPlayer, updateCell, winner, draw};
 
 })(document);
 
@@ -207,6 +251,15 @@ const MainController = (function(){
         ScreenController.updateCell(updatedGameBoard);
         const winnerCheck = GameController.checkWinCondition();
         if(winnerCheck){
+            if(winnerCheck=="X"){
+                GameController.updatePlayerOneScore();
+            }
+            else{
+                GameController.updatePlayerTwoScore();
+            }
+            let playerOneScore = GameController.getPlayerOneScore();
+            let playerTwoScore = GameController.getPlayerTwoScore();
+            ScreenController.updateScore(playerOneScore, playerTwoScore);
             ScreenController.winner(winnerCheck);
             return;
         }

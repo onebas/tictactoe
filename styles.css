@@ -33,12 +33,33 @@ body{
 }
 
 main{
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
     gap: 32px;
 }
 
+#score{
+    grid-column: 1 / span 2;
+    grid-row: 1;
+}
+
+.one{
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.two{
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.current-player{
+    grid-column: 1 / span 2;
+}
+
 .xo-container{
+    grid-column: 1 / span 2;
     display: grid;
     grid-template-rows: repeat(3, 1fr);
     gap: 16px;
@@ -60,16 +81,45 @@ main{
     width: auto;
 }
 
-div button{
+.xo-container button{
     border-radius: 16px;
     box-shadow: 5px 5px 10px #1d1d1d;
     outline: none;
     border: 0;
 }
 
-div button:hover{
+.xo-container button:hover{
     border: 5px solid #466275;
 }
+
+button[class^="player-"]{
+    font-family: "Comic Relief", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #c5c5c5;
+    font-size: 1.1rem;
+    border-radius: 16px;
+    border: 0;
+    outline: none;
+    width: 128px;
+    height: 64px;
+    padding: 10px 20px;
+}
+
+button[class^="player-"]:hover{
+    background-color: #c2abab;
+}
+
+button[class^="change-player-"]{
+    font-family: "Comic Relief", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    justify-self: center;
+    height: 48px;
+    width: 180px;
+    padding: 10px 20px;
+    border-radius: 16px;
+    box-shadow: 5px 5px 10px #1d1d1d;
+    outline: none;
+    border: 0;
+}
+
 
 
 dialog{
