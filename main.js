@@ -49,7 +49,7 @@ const GameController = (function(){
                 if(gameBoard[row][column] === "X"){
                     xCounter++;
                 }
-                else if(gameBoard[row][column] === "Y"){
+                else if(gameBoard[row][column] === "O"){
                     oCounter++;
                 }
             }
